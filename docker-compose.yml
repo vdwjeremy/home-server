@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+
+$ docker run -d -p 4443:4443 -p 443:443 -p 80:80 -v ncdata:/data --name nextcloudpi ownyourbits/nextcloudpi-x86 $DOMAIN
+
+  nextcloud:
+    image: ownyourbits/nextcloudpi-x86
+    restart: always
+    volumes:
+      - /home/vdw/nextcloud/html:/var/www/html
+      - /home/vdw/nextcloud/apps:/var/www/html/custom_apps
+      - /home/vdw/nextcloud/config:/var/www/html/config
+      - /home/vdw/nextcloud/data:/var/www/html/data
+    environment:
+      - VIRTUAL_HOST=vdw-cloud.duckdns.org
+      - LETSENCRYPT_HOST=vdw-cloud.duckdns.org
+      - LETSENCRYPT_EMAIL=vdw.jeremy@gmail.com
+    env_file:
+      - db.env
+    networks:
+      - proxy-tier
+      - default
+
+  proxy:
+    build: ./proxy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - /home/vdw/nginx/certs:/etc/nginx/certs:ro
+      - /home/vdw/nginx/vhost.d:/etc/nginx/vhost.d
+      - /home/vdw/nginx/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - app
+
+
+  letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
+    volumes:
+      - /home/vdw/nginx/certs:/etc/nginx/certs
+      - /home/vdw/nginx/vhost.d:/etc/nginx/vhost.d
+      - /home/vdw/nginx/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy-tier
+    depends_on:
+      - proxy
+
+networks:
+  proxy-tier:
+
