@@ -5,11 +5,9 @@ sudo -i
 systemctl stop apparmor && systemctl disable apparmor
 
 # https://doc.ubuntu-fr.org/mount_fstab
-mkdir /media/data /media/freeboxdd /media/freeboxbackup
+mkdir /media/data
 echo "
 UUID=325506bf-ebaa-4e9c-b59f-4d7d65c13b3c    /media/data           ext4    defaults        0       2
-//192.168.0.254/disque\040dur /media/freeboxdd  cifs  user=guest,sec=ntlm,password='',vers=1.0,uid=1000,gid=1000  0  0
-//192.168.0.254/BACKUP /media/freeboxbackup  cifs  user=guest,sec=ntlm,password='',vers=1.0,uid=1000,gid=1000  0  0
 " >> /etc/fstab
 sudo mount -a
 
@@ -52,30 +50,13 @@ nextcloud
 ! delete mod "redirect" from /data/etc/apache2/mods-enabled
 
 
-https://linuxize.com/post/how-to-install-and-use-docker-compose-on-ubuntu-18-04/
-# from https://github.com/nextcloud/docker/blob/master/.examples/docker-compose/with-nginx-proxy/mariadb/apache/docker-compose.yml
-docker-compose build
-docker-compose up -d
+# Backup
 
-daixian/daixian0
-amandine/amandine0
-marc/marc0000
-sophie/sophie00
-
-
-https://willhaley.com/blog/raspberry-pi-wifi-ethernet-bridge/
-+ static lease http://trentsonlinedocs.xyz/how_to_reassign_a_static_ip_address_with_dnsmasq/
-+ port forward https://silentkernel.fr/utiliser-iptables-pour-une-redirection-de-port/
-iptables -A POSTROUTING -t nat -o eth0 -j MASQUERADE
-iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.1.1.54:80
-iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 443 -j DNAT --to-destination 10.1.1.54:443
-iptables -A FORWARD -i eth0 -p tcp --dport 80 -j ACCEPT
-iptables -A FORWARD -i eth0 -p tcp --dport 443 -j ACCEPT
-
-nano /etc/iptables/rules.v4, add :
--A POSTROUTING -t nat -o eth0 -j MASQUERADE
--A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.1.1.54:80
--A PREROUTING -t nat -i wlan0 -p tcp --dport 443 -j DNAT --to-destination 10.1.1.54:443
--A FORWARD -i eth0 -p tcp --dport 80 -j ACCEPT
--A FORWARD -i eth0 -p tcp --dport 443 -j ACCEPT
-
+sudo mount /dev/sdc /media/usb
+sudo rsync -rav --delete /media/data/nextcloud/Photos/ /media/usb/Images/Photos/
+sudo rsync -rav --delete /media/data/nextcloud/Documents/ /media/usb/Documents/
+sudo rsync -rav --delete /media/data/nextcloud/Videos/ /media/usb/Videos/
+sudo rsync -rav --delete /media/data/multimedia/music/ /media/usb/Musique/
+cd ~/media-sync/workspace
+pip3 install --user exifread
+python3 ~/media-sync/media-sync.py

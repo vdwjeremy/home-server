@@ -2,8 +2,6 @@ version: '3'
 
 services:
 
-$ docker run -d -p 4443:4443 -p 443:443 -p 80:80 -v ncdata:/data --name nextcloudpi ownyourbits/nextcloudpi-x86 $DOMAIN
-
   nextcloud:
     image: ownyourbits/nextcloudpi-x86
     restart: always
@@ -39,7 +37,6 @@ $ docker run -d -p 4443:4443 -p 443:443 -p 80:80 -v ncdata:/data --name nextclou
       - proxy-tier
     depends_on:
       - app
-
 
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
